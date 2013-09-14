@@ -40,6 +40,7 @@ function walkDeps (opts, cb) {
     var pending = 0, done = false;
     
     finder.on('file', function (file, stats) {
+        if (/(^|\/)\b\.git\b/.test(file)) return;
         if (path.basename(file) !== 'package.json') return;
         pending ++;
         fs.readFile(file, function (err, src) {
