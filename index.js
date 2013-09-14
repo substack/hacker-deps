@@ -1,4 +1,4 @@
-var walk = require('walk-fs');
+var walk = require('findit');
 var path = require('path');
 var fs = require('fs');
 
@@ -19,7 +19,7 @@ module.exports = function (opts, cb) {
     });
     
     walkDeps(opts, function (err, hackers) {
-        if (err) cb(err)
+        if (err) return cb(err)
         res.hackers = hackers;
         done();
     });
@@ -27,24 +27,62 @@ module.exports = function (opts, cb) {
     var pending = 2;
     function done () {
         if (--pending !== 0) return;
-        
+        cb(null, Object.keys(res.hackers).reduce(function (acc, key) {
+            acc[key] = Object.keys(res.hackers[key]);
+            return acc;
+        }, {}));
     }
 };
 
 function walkDeps (opts, cb) {
     var hackers = {};
-    walk(opts.root, function (file, stats) {
-        if (!stats.isDirectory()
-        && path.basename(file) === 'package.json') {
-            fs.readFile(file, function (err, src) {
-                if (err) return;
-                try { var pkg = JSON.parse(src) }
-                catch (err) {}
-                
-                //hackers[pkg.author]
-                
-                console.log(pkg);
-            });
-        }
-    }, function () {});
+    var finder = walk.find(opts.root);
+    var pending = 0, done = false;
+    
+    finder.on('file', function (file, stats) {
+        if (path.basename(file) !== 'package.json') return;
+        pending ++;
+        fs.readFile(file, function (err, src) {
+            pending --;
+            if (err) next();
+            
+            try { var pkg = JSON.parse(src) }
+            catch (err) { next() }
+            
+            if (!pkg || !pkg.name || pkg.private) next();
+            var author = authorOf(pkg);
+            if (!hackers[author]) hackers[author] = {};
+            hackers[author][pkg.name] = true;
+            
+            function next () {
+                if (done && pending == 0) cb(null, hackers);
+            }
+        });
+    });
+    finder.on('end', function () {
+        done = true;
+        if (pending === 0) cb(null, hackers);
+    });
+}
+
+function authorOf (pkg) {
+    var author;
+    if (typeof pkg.author === 'object') {
+        author = pkg.author.name || pkg.author.email;
+    }
+    else if (typeof pkg.author === 'string') {
+        author = pkg.author;
+    }
+    if (!author && pkg.author) {
+        author = JSON.stringify(pkg.author);
+    }
+    if (!author && pkg.repository && pkg.repository.url) {
+        var m = /\bgithub.com\/([^\/]+)/.exec(pkg.repository.url);
+        author = m && m[1];
+    }
+    if (!author && pkg.bugs && pkg.bugs.url) {
+        var m = /\bgithub.com\/([^\/]+)/.exec(pkg.bugs.url);
+        author = m && m[1];
+    }
+    return author;
 }

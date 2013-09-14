@@ -1,6 +1,6 @@
 # hacker-deps
 
-Which programmers does your application depend on?
+Print out which hackers your application depends on.
 
 # example
 
