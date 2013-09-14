@@ -5,7 +5,10 @@ var root = argv.d || argv._[0] || process.cwd();
 
 hdeps({ root: root, debug: debug }, function (err, hackers) {
     if (err) return console.error(err);
-    console.dir(hackers);
+    hackers.forEach(function (hacker) {
+        console.log(hacker.name)
+        console.log('  ' + hacker.packages.join(', '));
+    });
 });
 
 function debug (msg) {
