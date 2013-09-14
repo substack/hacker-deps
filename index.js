@@ -1,4 +1,4 @@
-var walk = require('findit');
+var findit = require('findit');
 var path = require('path');
 var fs = require('fs');
 
@@ -33,11 +33,14 @@ module.exports = function (root, cb) {
 
 function walkDeps (root, cb) {
     var hackers = {};
-    var finder = walk.find(root);
+    var finder = findit(root);
     var pending = 0, done = false;
     
+    finder.on('directory', function (dir, stats, stop) {
+        if (path.basename(dir) === '.git') stop();
+    });
+    
     finder.on('file', function (file, stats) {
-        if (/(^|\/)\b\.git\b/.test(file)) return;
         if (path.basename(file) !== 'package.json') return;
         var parts = path.relative(root, file).split('/');
         var distance = -1;
