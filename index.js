@@ -33,7 +33,7 @@ module.exports = function (root, cb) {
 
 function walkDeps (root, cb) {
     var hackers = {};
-    var finder = findit(root);
+    var finder = findit(root, { followSymlinks: true });
     var pending = 0, done = false;
     
     finder.on('directory', function (dir, stats, stop) {
