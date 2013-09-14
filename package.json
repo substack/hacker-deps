@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "findit": "~1.1.0",
-    "hyperquest": "~0.1.7",
     "optimist": "~0.6.0",
     "text-table": "~0.1.1"
   },
