@@ -54,14 +54,16 @@ function walkDeps (opts, cb) {
             
             var author = authorOf(pkg);
             if (!hackers[author]) {
-                hackers[author] = {
+                var h = hackers[author] = {
                     packages: [],
                 };
                 if (pkg.author && pkg.author.name) {
-                    hackers[author].name = pkg.author.name;
+                    h.name = pkg.author.name;
                 }
+                else h.name = author;
+                
                 if (pkg.author && pkg.author.email) {
-                    hackers[author].email = pkg.author.email;
+                    h.email = pkg.author.email;
                 }
             }
             if (hackers[author].packages.indexOf(pkg.name) < 0) {
@@ -85,7 +87,7 @@ function authorOf (pkg) {
         author = pkg.author.name || pkg.author.email;
     }
     else if (typeof pkg.author === 'string') {
-        author = pkg.author;
+        author = pkg.author.replace(/\s*<.*/, '');
     }
     if (!author && pkg.author) {
         author = JSON.stringify(pkg.author);
