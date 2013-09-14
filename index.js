@@ -2,24 +2,16 @@ var walk = require('findit');
 var path = require('path');
 var fs = require('fs');
 
-module.exports = function (opts, cb) {
-    if (typeof opts === 'function') {
-        cb = opts;
-        opts = {};
-    }
-    if (!opts) opts = {};
-    
+module.exports = function (root, cb) {
     var res = {};
     
-    walkDeps(opts, function (err, hackers) {
+    walkDeps(root, function (err, hackers) {
         if (err) return cb(err)
         res.hackers = hackers;
         done();
     });
     
-    var pending = 1;
     function done () {
-        if (--pending !== 0) return;
         var total = 0;
         var hackers = Object.keys(res.hackers).map(function (key) {
             var h = res.hackers[key];
@@ -39,15 +31,15 @@ module.exports = function (opts, cb) {
     }
 };
 
-function walkDeps (opts, cb) {
+function walkDeps (root, cb) {
     var hackers = {};
-    var finder = walk.find(opts.root);
+    var finder = walk.find(root);
     var pending = 0, done = false;
     
     finder.on('file', function (file, stats) {
         if (/(^|\/)\b\.git\b/.test(file)) return;
         if (path.basename(file) !== 'package.json') return;
-        var parts = path.relative(opts.root, file).split('/');
+        var parts = path.relative(root, file).split('/');
         var distance = -1;
         for (var i = 0; i < parts.length; i++) {
             if (parts[i] === 'node_modules') distance ++;

@@ -5,10 +5,11 @@ var argv = require('optimist')
     .argv
 ;
 var table = require('text-table');
-
 var root = argv.d || argv._[0] || process.cwd();
 
-hdeps({ root: root, debug: debug }, function (err, hackers) {
+process.stdout.on('error', function () {}); // EPIPE
+
+hdeps(root, function (err, hackers) {
     if (err) return console.error(err);
     
     if (argv.modules) {
@@ -71,7 +72,3 @@ hdeps({ root: root, debug: debug }, function (err, hackers) {
         });
     }
 });
-
-function debug (msg) {
-    if (argv.debug) console.warn(msg);
-}
