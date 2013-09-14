@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var hdeps = require('./index.js');
 var argv = require('optimist')
     .boolean(['modules','verbose'])
