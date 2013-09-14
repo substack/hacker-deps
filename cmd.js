@@ -40,6 +40,7 @@ hdeps({ root: root, debug: debug }, function (err, hackers) {
                 m.name,
                 score + ' %',
                 String(m.hacker.name)
+                + (m.hacker.github ? ' (' + m.hacker.github + ')' : '')
             ];
         }
     }
@@ -49,7 +50,9 @@ hdeps({ root: root, debug: debug }, function (err, hackers) {
             if (!/\.\d$/.test(percent)) percent += '.0';
             percent = Array(6 - percent.length).join(' ') + percent;
             
-            console.log(percent + '%    ' + hacker.name);
+            console.log(percent + '%    ' + hacker.name
+                + (hacker.github ? ' (' + hacker.github + ')' : '')
+            );
             if (argv.verbose) {
                 var packages = [];
                 var keys = Object.keys(hacker.packages);

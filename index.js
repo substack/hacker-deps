@@ -69,7 +69,10 @@ function walkDeps (opts, cb) {
             if (!h) {
                 h = hackers[author] = {
                     packages: {},
+                    github: githubOf(pkg)
                 };
+            }
+            if (!h.name) {
                 if (pkg.author && pkg.author.name) {
                     h.name = pkg.author.name;
                 }
@@ -79,6 +82,8 @@ function walkDeps (opts, cb) {
                     h.email = pkg.author.email;
                 }
             }
+            if (!h.github) h.github = githubOf(pkg);
+            
             if (!h.packages[pkg.name]) h.packages[pkg.name] = 0;
             h.packages[pkg.name] += distance ? 1 / (2 * distance) : 1;
             
@@ -114,4 +119,17 @@ function authorOf (pkg) {
     }
     if (author) author = author.replace(/^['"]|['"]$/g, '');
     return author;
+}
+
+function githubOf (pkg) {
+    if (pkg.repository && pkg.repository.url) {
+        var m = /\bgithub.com\/([^\/]+)/.exec(pkg.repository.url);
+        if (m) return m[1];
+    }
+    if (pkg.bugs && pkg.bugs.url) {
+        var m = /\bgithub.com\/([^\/]+)/.exec(pkg.bugs.url);
+        if (m) return m[1];
+    }
+    var m = /\bgithub.com\/([^\/]+)/.exec(JSON.stringify(pkg));
+    if (m) return m[1];
 }
