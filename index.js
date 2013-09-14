@@ -42,6 +42,13 @@ function walkDeps (opts, cb) {
     finder.on('file', function (file, stats) {
         if (/(^|\/)\b\.git\b/.test(file)) return;
         if (path.basename(file) !== 'package.json') return;
+        var parts = path.relative(opts.root, file).split('/');
+        var distance = -1;
+        for (var i = 0; i < parts.length; i++) {
+            if (parts[i] === 'node_modules') distance ++;
+        }
+        distance = Math.max(0, distance);
+        
         pending ++;
         fs.readFile(file, function (err, src) {
             pending --;
@@ -53,9 +60,10 @@ function walkDeps (opts, cb) {
             if (!pkg || !pkg.name || pkg.private) return next();
             
             var author = authorOf(pkg);
-            if (!hackers[author]) {
-                var h = hackers[author] = {
-                    packages: [],
+            var h = hackers[author];
+            if (!h) {
+                h = hackers[author] = {
+                    packages: {},
                 };
                 if (pkg.author && pkg.author.name) {
                     h.name = pkg.author.name;
@@ -66,9 +74,8 @@ function walkDeps (opts, cb) {
                     h.email = pkg.author.email;
                 }
             }
-            if (hackers[author].packages.indexOf(pkg.name) < 0) {
-                hackers[author].packages.push(pkg.name);
-            }
+            if (!h.packages[pkg.name]) h.packages[pkg.name] = 0;
+            h.packages[pkg.name] += distance ? 1 / (2 * distance) : 1;
             
             function next () {
                 if (done && pending == 0) cb(null, hackers);
