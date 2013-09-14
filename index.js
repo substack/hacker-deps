@@ -81,6 +81,7 @@ function walkDeps (root, cb) {
             
             if (!h.packages[pkg.name]) h.packages[pkg.name] = 0;
             h.packages[pkg.name] += distance ? 1 / (2 * distance) : 1;
+            next();
             
             function next () {
                 if (done && pending == 0) cb(null, hackers);
