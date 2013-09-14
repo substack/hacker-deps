@@ -36,10 +36,12 @@ $ hacker-deps ~/projects/substack.net
   0.3%    T. Jameson Little (beatgammit)
 ```
 
+hacker-deps finds all package.json files and finds who wrote each non-private
+package depended on in your application.
+
 In this list the percentage is a normalized sum of all the packages in the
-dependency graph weighted by distance so that first-order dependencies that your
-application directly uses count more than the packages that your dependencies
-use.
+dependency graph weighted by distance to give a rough estimate of how reliant
+your application is on the work of each hacker in the results.
 
 To supplement the list of hackers with lists of packages, add `--verbose`:
 
@@ -110,6 +112,44 @@ OPTIONS:
   --modules  Print each module instead of each hacker.
 
 ```
+
+# methods
+
+``` js
+var hdeps = require('hacker-deps')
+```
+
+## hdeps(root, cb)
+
+Compute the hacker dependencies starting at the application path `root`.
+
+`cb(err, hackers)` fires once the complete graph has been traced with `hackers`,
+an array of entries sorted by a contribution score. Each row looks like:
+
+``` js
+{
+  name: 'Dominic Tarr',
+  github: 'dominictarr',
+  packages: {
+    split: 1.5,
+    through: 3.1666666666666665,
+    'vec2-dom': 1,
+    'vec2-layout': 2,
+    example: 2,
+    rec2: 0.5,
+    hyperscript: 0.5
+  },
+  score: 0.24436807941962585
+}
+```
+
+The `score` is a normalized contribution score that shows how reliant your
+application is on this author.
+
+The `packages` object is non-normalized package data according to the sum of
+`1/(2 * distance)` where `distance` is the number of dependencies up the
+dependency hierarchy. The assumption here is that modules that are further away
+are probably less crucial to your application.
 
 # install
 
