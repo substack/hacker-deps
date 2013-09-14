@@ -2,8 +2,6 @@ var walk = require('findit');
 var path = require('path');
 var fs = require('fs');
 
-var withDeps = require('./lib/deps.js');
-
 module.exports = function (opts, cb) {
     if (typeof opts === 'function') {
         cb = opts;
@@ -12,11 +10,6 @@ module.exports = function (opts, cb) {
     if (!opts) opts = {};
     
     var res = {};
-    withDeps(function (err, deps) {
-        if (err) return cb(err)
-        res.deps = deps;
-        done();
-    });
     
     walkDeps(opts, function (err, hackers) {
         if (err) return cb(err)
@@ -24,11 +17,23 @@ module.exports = function (opts, cb) {
         done();
     });
     
-    var pending = 2;
+    var pending = 1;
     function done () {
         if (--pending !== 0) return;
+        var total = 0;
         var hackers = Object.keys(res.hackers).map(function (key) {
-            return res.hackers[key];
+            var h = res.hackers[key];
+            h.score = Object.keys(h.packages).reduce(function (acc, x) {
+                return acc + h.packages[x];
+            }, 0);
+            total += h.score;
+            return h;
+        });
+        hackers.forEach(function (h) {
+            h.score = h.score / total;
+        });
+        hackers.sort(function (a, b) {
+            return a.score < b.score ? 1 : -1;
         });
         cb(null, hackers)
     }
