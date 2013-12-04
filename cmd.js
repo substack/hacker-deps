@@ -3,7 +3,8 @@
 var hdeps = require('./index.js');
 var argv = require('optimist')
     .boolean(['modules','verbose'])
-    .alias({ m: 'modules', v: 'verbose' })
+    .alias({ m: 'modules', v: 'verbose', s: 'socialism' })
+    .default({ socialism: 1.5 })
     .argv
 ;
 var table = require('text-table');
@@ -17,8 +18,8 @@ hdeps(root, function (err, hackers) {
     if (argv.modules) {
         showModules(hackers)
     }
-    else if (argv.spend) {
-        showSpend(hackers);
+    else if (argv.budget) {
+        showSpend(argv.budget, hackers);
     }
     else showPercents(hackers)
 });
@@ -84,5 +85,31 @@ function showPercents (hackers) {
     });
 }
 
-function showSpend (hackers) {
+function showSpend (budget, hackers) {
+    var lpad = Math.floor(Math.log(budget) / Math.log(10));
+    var scores = {};
+    var total = 0;
+    hackers.forEach(function (hacker) {
+        scores[hacker.name] = Math.pow(hacker.score, 1 / argv.socialism);
+        total += scores[hacker.name];
+    });
+    
+    hackers.forEach(function (hacker) {
+        var x = scores[hacker.name] / total * 100 * budget;
+        var amount = zpad(Math.floor(x) / 100, 2);
+        
+        console.log(
+            Array(lpad - amount.length + 5).join(' ')
+            + amount + '    ' + hacker.name
+            + (hacker.github ? ' (' + hacker.github + ')' : '')
+        );
+    });
+}
+
+function zpad (x, n) {
+    var s = String(x);
+    var r = s.split('.')[1] || '';
+    if (!r) s += '.';
+    for (var i = r.length; i < n; i++) s += '0';
+    return s;
 }
