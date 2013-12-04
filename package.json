@@ -4,7 +4,7 @@
   "description": "print out which hackers your application depends on",
   "main": "index.js",
   "bin": {
-    "hacker-deps": "cmd.js"
+    "hacker-deps": "bin/cmd.js"
   },
   "dependencies": {
     "findit": "~1.1.0",

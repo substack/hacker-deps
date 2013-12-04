@@ -1,12 +1,20 @@
 #!/usr/bin/env node
 
-var hdeps = require('./index.js');
+var fs = require('fs');
+var hdeps = require('../index.js');
 var argv = require('optimist')
     .boolean(['modules','verbose'])
-    .alias({ m: 'modules', v: 'verbose', s: 'socialism' })
+    .alias({ m: 'modules', v: 'verbose', s: 'socialism', b: 'budget' })
     .default({ socialism: 1.5 })
     .argv
 ;
+
+if (argv.h || argv.help) {
+    return fs.createReadStream(__dirname + '/usage.txt')
+        .pipe(process.stdout)
+    ;
+}
+
 var table = require('text-table');
 var root = argv.d || argv._[0] || process.cwd();
 
