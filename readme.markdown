@@ -104,12 +104,12 @@ hashish      3.0 %  James Halliday (substack)
 ```
 usage: hacker-deps OPTIONS
 
-Print out the list of hackers your application depends on.
+OPTIONS are:
 
-OPTIONS:
-
-  --verbose  Include package lists for each hacker.
-  --modules  Print each module instead of each hacker.
+  -v, --verbose     Verbose module output for the default output mode
+  -m, --modules     List the normalized weights of each module used.
+  -b, --budget      Hypothetical amount to budget for open source.
+  -s, --socialism   Coefficient of socialism for --budget (default: 1.5)
 
 ```
 
