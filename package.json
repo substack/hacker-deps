@@ -1,6 +1,6 @@
 {
   "name": "hacker-deps",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "print out which hackers your application depends on",
   "main": "index.js",
   "bin": {
