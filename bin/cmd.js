@@ -97,8 +97,10 @@ function showSpend (budget, hackers) {
     var lpad = Math.floor(Math.log(budget) / Math.log(10));
     var scores = {};
     var total = 0;
+    var soc = argv.socialism || 0.01;
+    
     hackers.forEach(function (hacker) {
-        scores[hacker.name] = Math.pow(hacker.score, 1 / argv.socialism);
+        scores[hacker.name] = Math.pow(hacker.score, 1 / soc);
         total += scores[hacker.name];
     });
     
